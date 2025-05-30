@@ -101,6 +101,8 @@ class HeatEquationApp:
             self.right_temp = right_temp
             
             init_str = self.init_entry.get()
+            init_str = init_str.replace('^', '**')
+
             x = np.linspace(0, L, N_total)
             
             math_functions = {
@@ -145,8 +147,14 @@ class HeatEquationApp:
             self.current_frame = 0
             self.is_paused = False
             self.pause_button.config(text="Пауза", state="normal")
-            
-            self.start_animation()
+
+            if total_time <= 0:
+                self.canvas.draw()
+                self.run_button.config(state="normal")
+                self.pause_button.config(state="disabled")
+                self.simulation_complete = True
+            else:
+                self.start_animation()
             
         except Exception as e:
             messagebox.showerror("Ошибка", f"Произошла ошибка:\n{str(e)}")
@@ -189,7 +197,6 @@ class HeatEquationApp:
             c = np.full(n, -self.r)
             d = u_internal.copy()
 
-            # Добавляем граничные условия в правую часть
             d[0] += self.r * self.left_temp
             d[-1] += self.r * self.right_temp
 
@@ -206,7 +213,6 @@ class HeatEquationApp:
 
             self.u[1:-1] = u_internal
 
-            # Обновление графика
             self.current_frame = frame
             self.all_frames.append(self.u.copy())
 
